@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    :root {
+      --ink: #202124; --muted: #5f6368; --line: #dadce0;
+      --mark: #fce8b2; --accent: #1a73e8; --bg: #fff; --panel: #f8f9fa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font: 15px/1.6 Roboto, Arial, sans-serif; color: var(--ink);
+      background: var(--panel); margin: 0; padding: 24px 16px;
+    }
+    .wrap { max-width: 780px; margin: 0 auto; }
+    h1 { font-size: 20px; font-weight: 500; margin: 0 0 4px; }
+    .lede { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+    textarea {
+      width: 100%; min-height: 220px; padding: 12px; font: inherit;
+      border: 1px solid var(--line); border-radius: 8px; resize: vertical;
+      background: var(--bg); color: var(--ink);
+    }
+    button {
+      font: inherit; background: var(--accent); color: #fff; border: 0;
+      border-radius: 6px; padding: 9px 18px; cursor: pointer; margin-top: 12px;
+    }
+    button:disabled { background: var(--muted); cursor: default; }
+    .summary { margin-top: 22px; }
+    .count { font-size: 24px; font-weight: 500; }
+    .density { color: var(--muted); font-size: 13px; }
+    .breakdown { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .breakdown span { margin-right: 12px; white-space: nowrap; }
+    .finding {
+      background: var(--bg); border: 1px solid var(--line);
+      border-radius: 8px; padding: 12px 14px; margin-top: 12px;
+    }
+    .tag {
+      display: inline-block; font-size: 12px; padding: 1px 9px;
+      border-radius: 10px; margin-bottom: 7px;
+      background: #e8f0fe; color: #1967d2;
+    }
+    .tag[data-rule="passive-agented"] { background: #feefe3; color: #b06000; }
+    .tag[data-rule="nominalization-of"] { background: #f3e8fd; color: #7b1fa2; }
+    .tag[data-rule="light-verb"] { background: #e8eaf6; color: #3949ab; }
+    .tag[data-rule="padding-phrase"] { background: #e6f4ea; color: #137333; }
+    .context { color: var(--muted); font-size: 14px; }
+    .context mark { background: var(--mark); color: var(--ink); }
+    .question { margin-top: 8px; font-size: 14px; }
+    .note, .error { font-size: 14px; margin-top: 16px; }
+    .note { color: var(--muted); }
+    .error { color: #c5221f; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Passive Voice Lens</h1>
+    <p class="lede">
+      Paste a draft below. Nothing here is an error on its own — each flag is a
+      place worth a second look. Your text is not saved.
+    </p>
+    <textarea id="draft" placeholder="Paste your writing here…"></textarea>
+    <button id="check">Check writing</button>
+
+    <div class="summary">
+      <div class="count" id="count"></div>
+      <div class="density" id="density"></div>
+      <div class="breakdown" id="breakdown"></div>
+    </div>
+    <div id="results"></div>
+    <div class="note" id="note"></div>
+  </div>
+
+  <script>
+    var checkButton = document.getElementById('check');
+    checkButton.addEventListener('click', runCheck);
+
+    function runCheck() {
+      checkButton.disabled = true;
+      checkButton.textContent = 'Checking…';
+      setNote('note', '');
+      google.script.run
+        .withSuccessHandler(render)
+        .withFailureHandler(showError)
+        .analyzeDraft(document.getElementById('draft').value);
+    }
+
+    function render(result) {
+      resetButton();
+      document.getElementById('count').textContent =
+        result.findings.length + (result.findings.length === 1 ? ' finding' : ' findings');
+      document.getElementById('density').textContent = result.wordCount === 0
+        ? ''
+        : result.density + ' per 100 words · ' + result.wordCount + ' words';
+      renderBreakdown(result.findings);
+
+      var results = document.getElementById('results');
+      results.innerHTML = '';
+      result.findings.forEach(function (finding) {
+        results.appendChild(buildCard(finding));
+      });
+
+      setNote('note', result.wordCount === 0
+        ? 'Paste some writing first.'
+        : (result.findings.length === 0 ? 'Nothing flagged.' : ''));
+    }
+
+    function renderBreakdown(findings) {
+      var counts = {};
+      findings.forEach(function (f) {
+        counts[f.ruleLabel] = (counts[f.ruleLabel] || 0) + 1;
+      });
+      var el = document.getElementById('breakdown');
+      el.innerHTML = '';
+      Object.keys(counts).sort().forEach(function (label) {
+        var span = document.createElement('span');
+        span.textContent = counts[label] + ' ' + label.toLowerCase();
+        el.appendChild(span);
+      });
+    }
+
+    function buildCard(finding) {
+      var card = document.createElement('div');
+      card.className = 'finding';
+
+      var tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.setAttribute('data-rule', finding.ruleId);
+      tag.textContent = finding.ruleLabel;
+
+      var context = document.createElement('div');
+      context.className = 'context';
+      context.innerHTML = markPhrase(finding.sentence, finding.phrase);
+
+      var question = document.createElement('div');
+      question.className = 'question';
+      question.textContent = finding.question;
+
+      card.appendChild(tag);
+      card.appendChild(context);
+      card.appendChild(question);
+      return card;
+    }
+
+    function markPhrase(sentence, phrase) {
+      var at = sentence.indexOf(phrase);
+      if (at === -1) return escapeHtml(sentence);
+      return escapeHtml(sentence.slice(0, at)) +
+        '<mark>' + escapeHtml(phrase) + '</mark>' +
+        escapeHtml(sentence.slice(at + phrase.length));
+    }
+
+    function escapeHtml(value) {
+      var div = document.createElement('div');
+      div.textContent = value;
+      return div.innerHTML;
+    }
+
+    function setNote(className, text) {
+      var note = document.getElementById('note');
+      note.className = className;
+      note.textContent = text;
+    }
+
+    function showError(error) {
+      resetButton();
+      setNote('error', error && error.message ? error.message : String(error));
+    }
+
+    function resetButton() {
+      checkButton.disabled = false;
+      checkButton.textContent = 'Check writing';
+    }
+  </script>
+</body>
+</html>
