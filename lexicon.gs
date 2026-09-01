@@ -100,3 +100,42 @@ const IRREGULAR_PAST = Object.freeze([
   'stood', 'told', 'wrote', 'won', 'put', 'set', 'cut', 'cost', 'hit', 'let',
   'shows', 'show', 'reveals', 'reveal', 'suggests', 'suggest', 'remains'
 ])
+
+/** Nouns that are already plural, though writers often treat them as singular. */
+const PLURAL_NOUNS = Object.freeze([
+  'data', 'criteria', 'phenomena', 'media', 'analyses', 'hypotheses',
+  'bacteria', 'strata', 'curricula', 'theses', 'indices', 'matrices',
+  'alumni', 'foci'
+])
+
+/** Singular verb forms and their plural equivalents. */
+const AGREEMENT_FIXES = Object.freeze({
+  is: 'are', was: 'were', has: 'have', does: 'do', seems: 'seem',
+  shows: 'show', suggests: 'suggest', indicates: 'indicate',
+  remains: 'remain', appears: 'appear', supports: 'support'
+})
+
+/** Words ending in -s that are not plural nouns. */
+const SINGULAR_S_WORDS = Object.freeze([
+  'series', 'species', 'means', 'news', 'always', 'perhaps', 'whereas',
+  'towards', 'besides', 'yes', 'gas', 'lens', 'bias', 'campus', 'census'
+])
+
+const MODALS = Object.freeze([
+  'can', 'could', 'may', 'might', 'will', 'would', 'shall', 'should', 'must'
+])
+
+/** Verbs that commonly follow a bare "this" and leave the referent unnamed. */
+const REPORTING_VERBS = Object.freeze([
+  'suggests', 'suggest', 'shows', 'show', 'indicates', 'indicate', 'means',
+  'mean', 'demonstrates', 'demonstrate', 'implies', 'imply', 'highlights',
+  'highlight', 'reveals', 'reveal', 'illustrates', 'illustrate', 'reflects',
+  'reflect', 'leads', 'lead', 'results', 'result', 'allows', 'allow',
+  'enables', 'enable', 'creates', 'create', 'causes', 'cause', 'explains',
+  'explain', 'supports', 'support', 'confirms', 'confirm', 'raises', 'raise',
+  'provides', 'provide', 'makes', 'make', 'gives', 'give', 'seems', 'seem',
+  'appears', 'appear', 'occurs', 'occur', 'requires', 'require', 'involves',
+  'involve', 'includes', 'include', 'points', 'point', 'helps', 'help',
+  'tells', 'tell', 'happens', 'happen', 'contributes', 'contribute',
+  'presents', 'present', 'offers', 'offer', 'has', 'have', 'had'
+])

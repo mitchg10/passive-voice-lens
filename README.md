@@ -1,6 +1,6 @@
 # Passive Voice Lens
 
-A writing tool for Google Docs. It highlights five patterns that make academic
+A writing tool for Google Docs. It highlights nine patterns that make academic
 prose harder to read, and for each one asks a question rather than issuing a
 correction.
 
@@ -15,7 +15,11 @@ especially in a methods section. The tool marks places worth a second look.
 | Passive, actor named | "were coded by two raters" | You know who acted. Make them the subject? |
 | Buried verb | "performed an analysis" | Try "analyze" |
 | Nominalization | "the usage of GAI" | Try "GAI usage" |
-| Wordy phrase | "due to", "in order to" | Named replacement for each |
+| Unattributed claim | "studies have shown" | Which studies? |
+| Unclear reference | "This suggests that..." | This what? Name the noun |
+| Agreement | "data is", "amount of students" | "data are", "number of students" |
+| Inflated word | "utilize", "methodology" | "use", "method" |
+| Wordy phrase | "due to", "past history" | Named replacement for each |
 
 ## Option 1: Use the web version
 
@@ -25,39 +29,35 @@ Nothing to install. Your text is not saved.
 ## Option 2: Install it in your own Google Doc
 
 This adds a sidebar inside Google Docs, so you can click a finding and jump to
-that sentence in your draft. It takes about ten minutes once.
+that sentence in your draft. It takes about five minutes once. You only need
+two files, both in the `bundle` folder.
 
 1. Open the Google Doc you want to check.
 2. Click **Extensions**, then **Apps Script**. A new tab opens.
 3. Delete everything in the `Code.gs` file that is already there.
-4. Copy the contents of `Code.gs` from this repository and paste it in.
-5. For each of these files, click the **+** next to Files, choose **Script**,
-   and type the name exactly as shown (leave off the `.gs`):
-
-   `lexicon`, `phrases`, `verbForms`, `tokenize`, `passiveRule`,
-   `nominalizationRule`, `lightVerbRule`, `phraseRule`, `rules`
-
-   Paste the matching file's contents into each one.
-6. Click the **+** next to Files again, choose **HTML**, and name it `Sidebar`.
-   Paste in the contents of `Sidebar.html`. The editor adds the `.html` for you,
-   so do not type it yourself.
-7. Click the save icon.
-8. In the toolbar, pick `showSidebar` from the function dropdown and click
+4. Open `bundle/PassiveVoiceLens.gs` in this repository, copy all of it, and
+   paste it into the empty `Code.gs`.
+5. Click the **+** next to Files, choose **HTML**, and name it `Sidebar`. The
+   editor adds the `.html` for you, so do not type it yourself. Paste in the
+   contents of `bundle/Sidebar.html`.
+6. Click the save icon.
+7. In the toolbar, pick `showSidebar` from the function dropdown and click
    **Run**.
-9. Google will ask for permission. Click **Review permissions**, pick your
+8. Google will ask for permission. Click **Review permissions**, pick your
    account, then **Advanced**, then **Go to Passive Voice Lens (unsafe)**, then
    **Allow**.
 
    The "unverified app" warning is expected. It appears because this script is
    not published to the Google Workspace Marketplace, not because anything is
    wrong with it. The script can only read the document you installed it in.
-10. Switch back to your document. The sidebar should be open.
+9. Switch back to your document. The sidebar should be open.
 
 Reload the document once. From then on, a **Passive Voice Lens** menu appears in
 the menu bar, and you can open the sidebar from there.
 
-`WebApp.html` and `appsscript.json` are not needed for this. They are used for
-the hosted web version.
+If you plan to write your own rules, install the separate files from the top of
+the repository instead of the bundle, one script file per name, so that you can
+edit them individually. See [ADDING-RULES.md](ADDING-RULES.md).
 
 ## Using the sidebar
 
@@ -70,8 +70,10 @@ usually fine.
 
 ## Troubleshooting
 
-**"ReferenceError: PASSIVE_RULE is not defined"** — a file is missing or
-misnamed. Check that all nine script files exist and match the names in step 5.
+**"ReferenceError: PASSIVE_RULE is not defined"** — part of the script is
+missing. If you used the bundle, make sure you copied the whole file. If you
+installed the separate files, check that every one of them exists and is spelled
+correctly.
 
 **"We're sorry, a server error occurred... PERMISSION_DENIED"** — you are signed
 into more than one Google account. Open the document in an incognito window
